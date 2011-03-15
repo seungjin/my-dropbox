@@ -1,0 +1,15 @@
+ABOUT
+This is for mac osx.
+
+INSTALL:
+For MAC / MacFSEvents 0.2.1
+http://pypi.python.org/pypi/MacFSEvents
+For Linux / Pyinotify
+http://pyinotify.sourceforge.net/
+
+#REFERENCE:
+http://code.google.com/p/boto/wiki/BotoConfig
+http://pypi.python.org/pypi/MacFSEvents
+http://pyinotify.sourceforge.net/
+http://googleappsdeveloper.blogspot.com/2010/03/resumable-upload-for-google-data-apis.html
+http://code.google.com/apis/storage/docs/gspythonlibrary.html
