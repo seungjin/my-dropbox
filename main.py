@@ -35,5 +35,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+  watch_folder = ""
+  main()
 
