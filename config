@@ -1,0 +1,6 @@
+dropbox_folder = ''
+sqlite_path = ''
+
+[google storage]
+gs_access_key_id = your_google_storage_access_key
+gs_secret_access_key = your_google_storage_secret
