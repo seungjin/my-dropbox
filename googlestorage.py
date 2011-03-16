@@ -53,10 +53,35 @@ class Googlestorage(object):
       print bucket.name
       
   def list_objects(self):
-    pass
+    uri = boto.storage_uri('seungjin', self.GOOGLE_STORAGE)
+    for obj in uri.get_bucket():
+      print '%s://%s/%s' % (uri.scheme, uri.bucket_name, obj.name)
+      #print '  "%s"' % obj.get_contents_as_string()
       
   def upload_objects(self):
-    pass
+    # Make some temporary files.
+    temp_dir = tempfile.mkdtemp(prefix='googlestorage')
+    tempfiles = {
+      'labrador.txt': 'Who wants to play fetch? Me!',
+      'collie.txt': 'Timmy fell down the well!'
+    }
+    for filename, contents in tempfiles.iteritems():
+      fh = file(os.path.join(temp_dir, filename), 'w')
+      fh.write(contents)
+      fh.close()
+
+    # Upload these files to DOGS_BUCKET.
+    for filename in tempfiles:
+      contents = file(os.path.join(temp_dir, filename), 'r')
+
+    dst_uri = boto.storage_uri(DOGS_BUCKET + '/' + filename, GOOGLE_STORAGE)
+    # The key-related functions are a consequence of boto's
+    # interoperability with Amazon S3 (which employs the
+    # concept of a key mapping to contents).
+    dst_uri.new_key().set_contents_from_file(contents)
+    contents.close()
+    print 'Successfully created "%s/%s"' % (dst_uri.bucket_name, dst_uri.object_name)
+    shutil.rmtree(temp_dir)  # Don't forget to clean up!
   
   def download_and_copy_objects(self):
     pass
@@ -72,4 +97,4 @@ class Googlestorage(object):
 
 # debug/test
 a = Googlestorage()
-a.list_buckets()
+a.list_objects()
