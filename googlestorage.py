@@ -32,7 +32,7 @@ class Googlestorage(object):
     self.GOOGLE_STORAGE = 'gs'
     # URI scheme for accessing local files
     self.LOCAL_FILE = 'file'
-  
+
   def create_buckets(self):
     now = time.time()
     CATS_BUCKET = 'cats-%d' % now
@@ -51,13 +51,13 @@ class Googlestorage(object):
     uri = boto.storage_uri('',self.GOOGLE_STORAGE)
     for bucket in uri.get_all_buckets():
       print bucket.name
-      
+
   def list_objects(self):
     uri = boto.storage_uri('seungjin', self.GOOGLE_STORAGE)
     for obj in uri.get_bucket():
       print '%s://%s/%s' % (uri.scheme, uri.bucket_name, obj.name)
       #print '  "%s"' % obj.get_contents_as_string()
-      
+
   def upload_objects(self):
     # Make some temporary files.
     temp_dir = tempfile.mkdtemp(prefix='googlestorage')
@@ -84,16 +84,59 @@ class Googlestorage(object):
     shutil.rmtree(temp_dir)  # Don't forget to clean up!
   
   def download_and_copy_objects(self):
-    pass
+    dest_dir = os.getenv('HOME')
+    for filename in ('collie.txt', 'labrador.txt'):
+      src_uri = boto.storage_uri(
+        DOGS_BUCKET + '/' + filename, GOOGLE_STORAGE)
+    # Create a file-like object for holding the object contents.
+    object_contents = StringIO.StringIO()
+    # The unintuitively-named get_file() doesn't return the objects's
+    # contents; instead, it actually writes the contents to
+    # object_contents.
+    src_uri.get_key().get_file(object_contents)
+    local_dst_uri = boto.storage_uri(os.path.join(dest_dir, filename), LOCAL_FILE)
+    bucket_dst_uri = boto.storage_uri(CATS_BUCKET + '/' + filename, GOOGLE_STORAGE)
+    for dst_uri in (local_dst_uri, bucket_dst_uri):
+      object_contents.seek(0)
+      dst_uri.new_key().set_contents_from_file(object_contents)
+    object_contents.close()
   
   def change_object_acls(self):
-    pass
+    uri = boto.storage_uri(DOGS_BUCKET + '/labrador.txt', GOOGLE_STORAGE)
+    print str(uri.get_acl())
+    uri.add_email_grant('FULL_CONTROL', 'valid-email-address')
+    print str(uri.get_acl())
   
   def read_bucket_and_object_metadata(self):
-    pass
+    # Print ACL entries for DOGS_BUCKET.
+    bucket_uri = boto.storage_uri(DOGS_BUCKET, GOOGLE_STORAGE)
+    for entry in bucket_uri.get_bucket().get_acl().entries.entry_list:
+      entry_id = entry.scope.id
+      if not entry_id:
+        entry_id = entry.scope.email_address
+      print 'SCOPE: %s' % entry_id
+      print 'PERMISSION: %s\n' % entry.permission
+    # Print object metadata and ACL entries.
+    object_uri = boto.storage_uri(DOGS_BUCKET + '/labrador.txt', GOOGLE_STORAGE)
+    print ' Object size:\t%s' % key.size
+    print ' Last mod:\t%s' % key.last_modified  
+    print ' MIME type:\t%s' % key.content_type
+    print ' MD5:\t%s' % key.etag.strip('"\'') # Remove surrounding quotes
+    for entry in key.get_acl().entries.entry_list:
+      entry_id = entry.scope.id
+      if not entry_id:
+        entry_id = entry.scope.email_address
+      print 'SCOPE: %s' % entry_id
+      print 'PERMISSION: %s\n' % entry.permission
   
   def delete_objects_and_buckets(self):
-    pass
+    for bucket in (CATS_BUCKET, DOGS_BUCKET):
+      uri = boto.storage_uri(bucket, GOOGLE_STORAGE)
+    for obj in uri.get_bucket():
+      print 'Deleting object: %s...' % obj.name
+      obj.delete()
+    print 'Deleting bucket: %s...' % uri.bucket_name
+    uri.delete_bucket()
 
 # debug/test
 a = Googlestorage()
