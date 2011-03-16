@@ -1,6 +1,8 @@
 ABOUT
 This is for mac osx.
 
+Requires boto-2.0b4 
+
 INSTALL:
 For MAC / MacFSEvents 0.2.1
 http://pypi.python.org/pypi/MacFSEvents

@@ -18,6 +18,11 @@ class Googlestorage(object):
     self.config = boto.config
     # let's see your ~/.boto credential
     
+    #config.add_section('Credentials')
+    #config.set('Credentials', 'gs_access_key_id', 'YOURACCESSKEY')
+    #config.set('Credentials', 'gs_secret_access_key', 'YOURSECRETKEY')
+
+    
     #config = ConfigParser.RawConfigParser()
     #config.read(os.path.dirname(os.path.realpath(__file__))+'/config')
     #gs_access_key_id = config.get('google storage','gs_access_key_id')
@@ -41,7 +46,7 @@ class Googlestorage(object):
         print "Suceesfully created bucket \"%s\"" %name
       except boto.exception.StorageCreateError, e:
         print "Failed to create bucket:" , e
-  
+
   def list_buckets(self):
     uri = boto.storage_uri('',self.GOOGLE_STORAGE)
     for bucket in uri.get_all_buckets():
