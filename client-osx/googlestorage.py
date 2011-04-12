@@ -23,8 +23,8 @@ class Googlestorage(object):
     #config.set('Credentials', 'gs_secret_access_key', 'YOURSECRETKEY')
 
     
-    #config = ConfigParser.RawConfigParser()
-    #config.read(os.path.dirname(os.path.realpath(__file__))+'/config')
+    config = ConfigParser.RawConfigParser()
+    config.read(os.path.dirname(os.path.realpath(__file__))+'/config')
     #gs_access_key_id = config.get('google storage','gs_access_key_id')
     #gs_secret_access_key = config.get('google storage','gs_secret_access_key')
     
@@ -32,8 +32,11 @@ class Googlestorage(object):
     self.GOOGLE_STORAGE = 'gs'
     # URI scheme for accessing local files
     self.LOCAL_FILE = 'file'
+    
+    self.GOOGLE_STORAGE_MY_BUCKET = config.get('google storage my bucket','my_bucket')
 
   def create_buckets(self):
+    # TODO
     now = time.time()
     CATS_BUCKET = 'cats-%d' % now
     DOGS_BUCKET = 'dogs-%d' % now
@@ -48,19 +51,26 @@ class Googlestorage(object):
         print "Failed to create bucket:" , e
 
   def list_buckets(self):
+    # TODO
     uri = boto.storage_uri('',self.GOOGLE_STORAGE)
     for bucket in uri.get_all_buckets():
       print bucket.name
 
   def list_objects(self):
-    uri = boto.storage_uri('seungjin', self.GOOGLE_STORAGE)
+    uri = boto.storage_uri(self.GOOGLE_STORAGE_MY_BUCKET, self.GOOGLE_STORAGE)
+    object_list = []
     for obj in uri.get_bucket():
-      print '%s://%s/%s' % (uri.scheme, uri.bucket_name, obj.name)
-      #print '  "%s"' % obj.get_contents_as_string()
+      object = {'scheme': uri.scheme, 'bucket_name': uri.bucket_name, 'name': obj.name}
+      object_list.append(object)
+    return object_list
 
-  def upload_objects(self):
+  def upload_objects(self, myFile):
+    print myFile
+    # TODO
     # Make some temporary files.
     temp_dir = tempfile.mkdtemp(prefix='googlestorage')
+    
+    """
     tempfiles = {
       'labrador.txt': 'Who wants to play fetch? Me!',
       'collie.txt': 'Timmy fell down the well!'
@@ -69,12 +79,15 @@ class Googlestorage(object):
       fh = file(os.path.join(temp_dir, filename), 'w')
       fh.write(contents)
       fh.close()
-
+    
     # Upload these files to DOGS_BUCKET.
     for filename in tempfiles:
       contents = file(os.path.join(temp_dir, filename), 'r')
-
-    dst_uri = boto.storage_uri(DOGS_BUCKET + '/' + filename, GOOGLE_STORAGE)
+    """
+    filename = myFile
+    contents = file(myFile,'r')
+    
+    dst_uri = boto.storage_uri("seungjin-mydropbox" + '/' + filename, 'gs')
     # The key-related functions are a consequence of boto's
     # interoperability with Amazon S3 (which employs the
     # concept of a key mapping to contents).
@@ -84,6 +97,7 @@ class Googlestorage(object):
     shutil.rmtree(temp_dir)  # Don't forget to clean up!
   
   def download_and_copy_objects(self):
+    #TODO
     dest_dir = os.getenv('HOME')
     for filename in ('collie.txt', 'labrador.txt'):
       src_uri = boto.storage_uri(
@@ -102,12 +116,14 @@ class Googlestorage(object):
     object_contents.close()
   
   def change_object_acls(self):
+    # TODO
     uri = boto.storage_uri(DOGS_BUCKET + '/labrador.txt', GOOGLE_STORAGE)
     print str(uri.get_acl())
     uri.add_email_grant('FULL_CONTROL', 'valid-email-address')
     print str(uri.get_acl())
   
   def read_bucket_and_object_metadata(self):
+    # TODO
     # Print ACL entries for DOGS_BUCKET.
     bucket_uri = boto.storage_uri(DOGS_BUCKET, GOOGLE_STORAGE)
     for entry in bucket_uri.get_bucket().get_acl().entries.entry_list:
@@ -129,7 +145,9 @@ class Googlestorage(object):
       print 'SCOPE: %s' % entry_id
       print 'PERMISSION: %s\n' % entry.permission
   
-  def delete_objects_and_buckets(self):
+  def delete_objects_and_buckets(self, myFile):
+    # TODO
+    """
     for bucket in (CATS_BUCKET, DOGS_BUCKET):
       uri = boto.storage_uri(bucket, GOOGLE_STORAGE)
     for obj in uri.get_bucket():
@@ -137,7 +155,14 @@ class Googlestorage(object):
       obj.delete()
     print 'Deleting bucket: %s...' % uri.bucket_name
     uri.delete_bucket()
+    """
+    uri = boto.storage_uri('seungjin-mydropbox', 'gs')
+    for obj in uri.get_bucket():
+      if "/"+str(obj.key) == myFile :
+        print "sd"
+        obj.delete()
+    
 
 # debug/test
-a = Googlestorage()
-a.list_objects()
+#a = Googlestorage()
+#print a.list_objects()

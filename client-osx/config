@@ -1,3 +1,6 @@
 [google storage]
 gs_access_key_id = your_google_storage_access_key
 gs_secret_access_key = your_google_storage_secret
+
+[google storage my bucket]
+my_bucket = seungjin-mydropbox

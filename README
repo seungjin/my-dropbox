@@ -1,5 +1,10 @@
 ABOUT
 
+Data storage: googledatastore
+Indexing server: google app engine
+Communication protocol between Index Server and Client: XMPP by Google app engine
+
+Decided to use SleekXMPP. Due to this, mydropbox only work with python 2.6+ (SleekXMPP is an XMPP library written for Python 3.1+ (with 2.6 compatibility).)
 
 Requires boto-2.0b4 
 
@@ -15,3 +20,4 @@ http://pypi.python.org/pypi/MacFSEvents
 http://pyinotify.sourceforge.net/
 http://googleappsdeveloper.blogspot.com/2010/03/resumable-upload-for-google-data-apis.html
 http://code.google.com/apis/storage/docs/gspythonlibrary.html
+https://github.com/fritzy/SleekXMPP/wiki

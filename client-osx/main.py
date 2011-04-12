@@ -3,6 +3,10 @@
 from fsevents import Observer
 from fsevents import Stream
 
+
+
+from googlestorage import Googlestorage
+
 """
 Bit                Description
 IN_ACCESS          File was accessed (read) (*)
@@ -19,6 +23,20 @@ IN_MOVED_TO        File moved into watched directory (*)
 IN_OPEN            File was opened (*)
 """
 
+
+"""
+==mask value==
+512:
+2:
+256: looks like new file comming
+"""
+
+
+# TODO
+# DATABASE, METADATA
+# NOT BIG DEAL!!!
+
+
 def main():
 
   observer = Observer()
@@ -26,15 +44,35 @@ def main():
   path = '/Users/seungjin/Desktop'
 
   def callback(event):
-    print "mask: " + str(event.mask)
-    print "cookie: " + str(event.cookie)
-    print "name: " + str(event.name)
+    #print "mask: " + str(event.mask)
+    #print "cookie: " + str(event.cookie)
+    #print "name: " + str(event.name)
+    print event
+    if event.mask == 256:  #looks like new file comming
+      newFile(str(event.name))
+    elif event.mask == 512:  #looks line file deleted
+      rmFile(str(event.name))
+    elif event.mask == 2:  #looks like overwriting?
+      print "hihihihi"
+
+  def newFile(filename):
+    print "new file is comming"
+    #pushing this file into cloud
+    gs = Googlestorage()
+    #print gs.list_objects()
+    gs.upload_objects(filename)
+  
+  def rmFile(filename):
+    #print "%s is removed" % filename
+    gs = Googlestorage() # this is evil.. do i need to make global goolgestorage object??? idk
+    gs.delete_objects_and_buckets(filename)
+    
 
   stream = Stream(callback,path,file_events=True)
   observer.schedule(stream)
 
-
 if __name__ == "__main__":
   watch_folder = ""
   main()
+
 
